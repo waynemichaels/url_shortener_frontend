@@ -1,23 +1,27 @@
 import React from "react";
-import CreateCard from "../components/CreateCard";
-import ToDoCardContainer from "./ToDoCardContainer";
+import CreateUrl from "../components/CreateUrl";
+import UrlsListContainer from "./UrlsListContainer";
+import validator from 'validator';
 
 export default class MainContainer extends React.Component {
   state = {
-    cards: [],
+    urls: [],
+    newUrl: ""
   };
 
   componentDidMount() {
     fetch("http://localhost:8000/api/urls/")
       .then((resp) => resp.json())
-      .then((cards) => {
+      .then((urls) => {
         this.setState({
-          cards: cards,
+          urls: urls,
         });
       });
   }
 
-  createNewCard = (input) => {
+  createNewUrl = (input) => {
+    console.log(input)
+    if (validator.isURL(input)){
     fetch("http://localhost:8000/api/urls/", {
       method: "POST",
       headers: {
@@ -29,93 +33,15 @@ export default class MainContainer extends React.Component {
       }),
     })
       .then((resp) => resp.json())
-      .then((newCard) => {
+      .then((newUrl) => {
         this.setState({
-          cards: [...this.state.cards, newCard],
+          urls: [...this.state.urls, newUrl],
+          newUrl : newUrl
         });
       });
-  };
-
-  addList = (cardId, input) => {
-    fetch("http://localhost:3000/lists", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify({
-        original: input,
-      }),
-    })
-      .then((resp) => resp.json())
-      .then((newList) => {
-        const foundCard = {
-          ...this.state.cards.find((card) => card.id === cardId),
-        };
-        foundCard.lists = [...foundCard.lists, newList];
-
-        const newCards = this.state.cards.map((card) => {
-          if (card.id === cardId) {
-            return foundCard;
-          } else {
-            return card;
-          }
-        });
-
-        this.setState({
-          cards: newCards,
-        });
-      });
-  };
-
-  handleClickList = (cardId, listId) => {
-    const foundCard = {
-      ...this.state.cards.find((card) => card.id === cardId),
     };
-    const foundList = foundCard.lists.find((list) => list.id === listId);
-
-    let newState = null;
-
-    if (foundList.completed) {
-      newState = false;
-    } else {
-      newState = true;
-    }
-
-    fetch(`http://localhost:3000/lists/${listId}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify({
-        completed: newState,
-      }),
-    })
-      .then((resp) => resp.json())
-      .then((newList) => {
-        const newLists = foundCard.lists.map((list) => {
-          if (list.id === listId) {
-            return newList;
-          } else {
-            return list;
-          }
-        });
-        foundCard.lists = newLists;
-
-        const newCards = this.state.cards.map((card) => {
-          if (card.id === cardId) {
-            return foundCard;
-          } else {
-            return card;
-          }
-        });
-
-        this.setState({
-          cards: newCards,
-        });
-      });
   };
+
 
   render() {
     return (
@@ -128,11 +54,9 @@ export default class MainContainer extends React.Component {
           flexDirection: "column",
         }}
       >
-        <CreateCard createNewCard={this.createNewCard} />
-        <ToDoCardContainer
-          cards={this.state.cards}
-          addList={this.addList}
-          handleClickList={this.handleClickList}
+        <CreateUrl createNewUrl={this.createNewUrl} newUrl ={this.state.newUrl}/>
+        <UrlsListContainer
+          urls={this.state.urls}
         />
       </div>
     );

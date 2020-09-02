@@ -41,14 +41,7 @@ class ToDoCard extends React.Component {
           }
         />
       </ListItem>
-      // <div className="to-do-card">
-
-      //   <p><b>Original URL: </b>{this.props.card.original}</p>
-      //   <p><b>Shortened URL:</b>{this.props.card.tiny}</p>
-      //   <form onSubmit={this.handleListSubmit}>
-      //     <input onChange={this.handleListInput} type="text" value ={this.state.input} />
-      //   </form>
-      // </div>
+     
     );
   }
 }
